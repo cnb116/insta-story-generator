@@ -1,118 +1,94 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>인스타 스토리 자동 생성기</title>
+  <title>🎩 인스타 스토리 자동 생성기</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-white to-gray-100 min-h-screen flex items-center justify-center px-4">
-  <div class="w-full max-w-xl bg-white shadow-xl rounded-2xl p-8 space-y-6">
-    <h1 class="text-3xl font-bold text-center text-blue-700">🪄 인스타 스토리 자동 생성기</h1>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-2xl bg-white p-6 rounded-lg shadow-xl">
+    <h1 class="text-2xl font-bold text-blue-700 mb-4">🎩 인스타 스토리 자동 생성기</h1>
 
-    <div>
-      <label class="block font-semibold mb-1">📦 상품명</label>
-      <input id="productName" type="text" placeholder="예: 파리지앵 센서휴지통" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </div>
+    <label class="block mb-2 font-semibold">📦 상품명</label>
+    <input type="text" id="productName" class="w-full border rounded px-3 py-2 mb-4" placeholder="예: 파리지양 센서휴지통" />
 
-    <div>
-      <label class="block font-semibold mb-1">🔗 쿠팡 링크</label>
-      <input id="productLink" type="url" placeholder="https://link.coupang.com/a/xxxxxx" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </div>
+    <label class="block mb-2 font-semibold">🔗 쿠팡 링크</label>
+    <input type="text" id="productLink" class="w-full border rounded px-3 py-2 mb-4" placeholder="https://link.coupang.com/a/xxxxx" />
 
-    <div>
-      <label class="block font-semibold mb-1">✨ 상품 장점 (3가지, 줄바꿈으로 입력)</label>
-      <textarea id="productBenefits" rows="4" placeholder="예:\n- 손 안 대고 위생적이에요\n- 센서 반응이 빨라요\n- 어디에 둬도 예뻐요" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-    </div>
+    <label class="block mb-2 font-semibold">✨ 상품 장점 (3가지, 줄바꿈으로 입력)</label>
+    <textarea id="advantages" class="w-full border rounded px-3 py-2 mb-4" rows="3" placeholder="- 사용 편하고 위생적이어요&#10;- 센서 반응이 빠른 휴지통&#10;- 어느 곳에나 어울리는 디자인"></textarea>
 
-    <div>
-      <label class="block font-semibold mb-1">🖼️ 스토리 이미지 업로드</label>
-      <input id="imageUpload" type="file" accept="image/*" class="w-full p-2 border rounded" />
-    </div>
+    <label class="block mb-2 font-semibold">🖼️ 스토리 이미지 업로드 (다중 선택 가능)</label>
+    <input type="file" id="imageInput" class="mb-4" multiple accept="image/*" />
 
-    <div>
-      <label class="block font-semibold mb-1">🏷️ 해시태그 입력</label>
-      <textarea id="hashtagInput" rows="2" placeholder="#주방템 #감성인테리어 #센서휴지통" class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-    </div>
+    <label class="block mb-2 font-semibold">📝 해시태그</label>
+    <input type="text" id="hashtags" class="w-full border rounded px-3 py-2 mb-4" placeholder="#센서휴지통 #주방템 #생활꿀팁" />
 
-    <button onclick="generateStory()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700">✅ 스토리 콘텐츠 생성</button>
-
-    <div id="result" class="mt-6 hidden bg-gray-50 border border-gray-200 p-4 rounded-xl">
-      <h2 class="font-bold mb-2 text-lg text-gray-700">📲 인스타 스토리 문구</h2>
-      <pre id="output" class="whitespace-pre-wrap text-sm font-mono"></pre>
-      <div class="flex gap-2 mt-3">
-        <button onclick="copyResult()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">📋 복사하기</button>
-        <button onclick="downloadZIP()" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">📦 ZIP 다운로드</button>
-      </div>
-    </div>
+    <button onclick="generateZIP()" class="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">✅ 스토리 컨텐츠 생성</button>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
   <script>
-    function generateStory() {
-      const product = document.getElementById('productName').value.trim();
-      const link = document.getElementById('productLink').value.trim();
-      const benefitsRaw = document.getElementById('productBenefits').value;
-      const benefits = benefitsRaw.split('\n').filter(b => b.trim() !== '');
+    function generateZIP() {
+      const productName = document.getElementById("productName").value.trim();
+      const productLink = document.getElementById("productLink").value.trim();
+      const advantages = document.getElementById("advantages").value.split('\n').filter(adv => adv.trim() !== '');
+      const hashtags = document.getElementById("hashtags").value.trim();
+      const imageFiles = document.getElementById("imageInput").files;
 
-      if (!product || !link || benefits.length < 1) {
-        alert('상품명, 링크, 장점을 모두 입력해주세요.');
+      // 유효성 검사
+      if (!productName || !productLink || advantages.length === 0) {
+        alert('상품명, 쿠팡 링크, 상품 장점을 모두 입력해주세요.');
         return;
       }
 
-      if (!link.startsWith('https://link.coupang.com')) {
+      if (!productLink.startsWith('https://link.coupang.com')) {
         alert('⚠️ 쿠팡 파트너스 링크를 올바르게 입력해주세요.');
         return;
       }
 
-      let output = `🙌 ${product}\n`;
-      benefits.forEach((b, i) => {
-        output += `${i + 1}. ${b}\n`;
+      let textContent = `🙌 ${productName}\n`;
+      advantages.forEach((adv, idx) => {
+        textContent += `${idx + 1}. ${adv.trim()}\n`;
       });
-      output += `\n👇 제품 보러가기\n${link}`;
+      textContent += `\n👇 제품 보러가기\n${productLink}\n\n${hashtags || '#센서휴지통 #주방템 #생활꿀팁'}`;
 
-      document.getElementById('output').textContent = output;
-      document.getElementById('result').classList.remove('hidden');
-    }
-
-    function copyResult() {
-      const text = document.getElementById('output').textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('📎 복사되었습니다!');
-      });
-    }
-
-    function downloadZIP() {
       const zip = new JSZip();
-      const content = document.getElementById('output').textContent;
-      const imageFile = document.getElementById('imageUpload').files[0];
-      const hashtags = document.getElementById('hashtagInput').value.trim() || '#센서휴지통 #주방템 #생활꿀팁';
+      zip.file("story.txt", textContent);
+      zip.file("hashtags.txt", hashtags || '#센서휴지통 #주방템 #생활꿀팁');
 
-      zip.file('insta_story.txt', content);
-      zip.file('hashtags.txt', hashtags);
-
-      if (imageFile) {
-        const ext = imageFile.name.split('.').pop().toLowerCase();
-        const imageName = `insta_story_image.${ext}`;
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          zip.file(imageName, e.target.result.split(',')[1], { base64: true });
-          zip.generateAsync({ type: 'blob' }).then(function (blob) {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'insta_story_package.zip';
-            a.click();
-          });
-        };
-        reader.readAsDataURL(imageFile);
-      } else {
-        zip.generateAsync({ type: 'blob' }).then(function (blob) {
-          const a = document.createElement('a');
+      // 이미지가 없는 경우 텍스트만 다운로드
+      if (imageFiles.length === 0) {
+        zip.generateAsync({ type: "blob" }).then(function (blob) {
+          const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
-          a.download = 'insta_story_package.zip';
+          a.download = "insta_story_package.zip";
           a.click();
         });
+        return;
+      }
+
+      let loaded = 0;
+      for (let i = 0; i < imageFiles.length; i++) {
+        const reader = new FileReader();
+        reader.onload = (function(index, file) {
+          return function(e) {
+            const base64 = e.target.result.split(",")[1];
+            const ext = file.name.split('.').pop().toLowerCase();
+            zip.file(`image_${index + 1}.${ext}`, base64, { base64: true });
+            loaded++;
+            if (loaded === imageFiles.length) {
+              zip.generateAsync({ type: "blob" }).then(function (blob) {
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "insta_story_package.zip";
+                a.click();
+              });
+            }
+          }
+        })(i, imageFiles[i]);
+        reader.readAsDataURL(imageFiles[i]);
       }
     }
   </script>
