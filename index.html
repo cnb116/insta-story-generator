@@ -57,9 +57,12 @@
       const zip = new JSZip();
       zip.file("story.txt", textContent);
       zip.file("hashtags.txt", hashtags || '#센서휴지통 #주방템 #생활꿀팁');
+      const fileNames = [];
 
-      // 이미지가 없는 경우 텍스트만 다운로드
+      // 이미지가 없는 경우
       if (imageFiles.length === 0) {
+        fileNames.push("story.txt", "hashtags.txt");
+        alert("저장 파일 목록:\n" + fileNames.join("\n"));
         zip.generateAsync({ type: "blob" }).then(function (blob) {
           const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
@@ -76,9 +79,13 @@
           return function(e) {
             const base64 = e.target.result.split(",")[1];
             const ext = file.name.split('.').pop().toLowerCase();
-            zip.file(`image_${index + 1}.${ext}`, base64, { base64: true });
+            const fileName = `image_${index + 1}.${ext}`;
+            zip.file(fileName, base64, { base64: true });
+            fileNames.push(fileName);
             loaded++;
             if (loaded === imageFiles.length) {
+              fileNames.push("story.txt", "hashtags.txt");
+              alert("저장 파일 목록:\n" + fileNames.join("\n"));
               zip.generateAsync({ type: "blob" }).then(function (blob) {
                 const a = document.createElement("a");
                 a.href = URL.createObjectURL(blob);
